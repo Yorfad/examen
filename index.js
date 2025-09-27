@@ -62,9 +62,46 @@ app.get("/cartelera", async (req, res) => {
  *   post:
  *     summary: Crear una nueva película en cartelera
  */
+/**
+ * @openapi
+ * /cartelera:
+ *   post:
+ *     summary: Crear una nueva película en cartelera
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               titulo:
+ *                 type: string
+ *               director:
+ *                 type: string
+ *               genero:
+ *                 type: string
+ *               duracion:
+ *                 type: integer
+ *               clasificacion:
+ *                 type: string
+ *               fechaEstreno:
+ *                 type: string
+ *                 format: date
+ *               sinopsis:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Película creada
+ */
 app.post("/cartelera", async (req, res) => {
   try {
     const { titulo, director, genero, duracion, clasificacion, fechaEstreno, sinopsis } = req.body;
+
+    // Validación simple
+    if (!titulo || !director || !genero || !duracion || !clasificacion || !fechaEstreno) {
+      return res.status(400).json({ error: "❌ Faltan campos obligatorios" });
+    }
+
     const pool = await poolPromise;
 
     await pool.request()
@@ -74,7 +111,7 @@ app.post("/cartelera", async (req, res) => {
       .input("duracion", sql.Int, duracion)
       .input("clasificacion", sql.NVarChar(50), clasificacion)
       .input("fechaEstreno", sql.Date, fechaEstreno)
-      .input("sinopsis", sql.NVarChar(sql.MAX), sinopsis)
+      .input("sinopsis", sql.NVarChar(sql.MAX), sinopsis || null)
       .query(`
         INSERT INTO cartelera5710 (titulo, director, genero, duracion, clasificacion, fechaEstreno, sinopsis)
         VALUES (@titulo, @director, @genero, @duracion, @clasificacion, @fechaEstreno, @sinopsis)
@@ -90,7 +127,40 @@ app.post("/cartelera", async (req, res) => {
  * @openapi
  * /cartelera/{id}:
  *   put:
- *     summary: Actualizar una película por ID
+ *     summary: Actualizar una película existente
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               titulo:
+ *                 type: string
+ *               director:
+ *                 type: string
+ *               genero:
+ *                 type: string
+ *               duracion:
+ *                 type: integer
+ *               clasificacion:
+ *                 type: string
+ *               fechaEstreno:
+ *                 type: string
+ *                 format: date
+ *               sinopsis:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Película actualizada
+ *       404:
+ *         description: Película no encontrada
  */
 app.put("/cartelera/:id", async (req, res) => {
   try {
@@ -106,7 +176,7 @@ app.put("/cartelera/:id", async (req, res) => {
       .input("duracion", sql.Int, duracion)
       .input("clasificacion", sql.NVarChar(50), clasificacion)
       .input("fechaEstreno", sql.Date, fechaEstreno)
-      .input("sinopsis", sql.NVarChar(sql.MAX), sinopsis)
+      .input("sinopsis", sql.NVarChar(sql.MAX), sinopsis || null)
       .query(`
         UPDATE cartelera5710
         SET titulo=@titulo, director=@director, genero=@genero, duracion=@duracion,
@@ -123,6 +193,7 @@ app.put("/cartelera/:id", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // ================================
 // Servidor
