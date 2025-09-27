@@ -1,11 +1,16 @@
 import express from "express";
 import sql from "mssql";
 import dotenv from "dotenv";
+import { swaggerSpec, swaggerUiMiddleware } from "./swagger.js";
+
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+// Documentación con Swagger
+app.use("/api-docs", swaggerUiMiddleware.serve, swaggerUiMiddleware.setup(swaggerSpec));
+
 
 // Configuración de conexión a SQL Server
 const dbConfig = {
@@ -19,16 +24,6 @@ const dbConfig = {
   },
 };
 
-const options = {
-  definition: {
-    openapi: "3.0.0",
-    info: {
-      title: "API de Cartelera",
-      version: "1.0.0",
-    },
-  },
-  apis: ["./index.js"], // <- ajusta según dónde tengas tus anotaciones @openapi
-};
 // Crear conexión pool
 const poolPromise = new sql.ConnectionPool(dbConfig)
   .connect()

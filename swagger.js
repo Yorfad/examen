@@ -5,9 +5,9 @@ const options = {
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "API de Usuarios y Clientes",
+      title: "API de cartelera",
       version: "1.0.0",
-      description: "API genérica para manejar Usuarios y Clientes con Express y Swagger",
+      description: "API genérica para manejar cartelera con Express y Swagger",
     },
   },
   apis: ["./index.js"], // aquí vamos a poner las anotaciones
