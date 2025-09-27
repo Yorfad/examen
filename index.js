@@ -52,6 +52,7 @@ app.post("/cartelera", async (req, res) => {
   try {
     const { titulo, director, genero, duracion, clasificacion, fechaEstreno, sinopsis } = req.body;
     const pool = await poolPromise;
+
     await pool.request()
       .input("titulo", sql.NVarChar(200), titulo)
       .input("director", sql.NVarChar(150), director)
@@ -108,6 +109,8 @@ app.post("/cartelera", async (req, res) => {
  *     responses:
  *       200:
  *         description: Película actualizada
+ *       404:
+ *         description: Película no encontrada
  */
 app.put("/cartelera/:id", async (req, res) => {
   try {
