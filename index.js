@@ -19,6 +19,16 @@ const dbConfig = {
   },
 };
 
+const options = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "API de Cartelera",
+      version: "1.0.0",
+    },
+  },
+  apis: ["./index.js"], // <- ajusta según dónde tengas tus anotaciones @openapi
+};
 // Crear conexión pool
 const poolPromise = new sql.ConnectionPool(dbConfig)
   .connect()
