@@ -1,3 +1,37 @@
+import express from "express";
+import sql from "mssql";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const app = express();
+app.use(express.json());
+
+// Configuración de conexión a SQL Server
+const dbConfig = {
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  server: process.env.DB_SERVER,
+  database: process.env.DB_NAME,
+  options: {
+    encrypt: true,
+    trustServerCertificate: true,
+  },
+};
+
+// Crear conexión pool
+const poolPromise = new sql.ConnectionPool(dbConfig)
+  .connect()
+  .then(pool => {
+    console.log("✅ Conectado a SQL Server");
+    return pool;
+  })
+  .catch(err => console.error("❌ Error de conexión a SQL Server:", err));
+
+// ================================
+// RUTAS
+// ================================
+
 /**
  * @openapi
  * /cartelera:
@@ -22,31 +56,6 @@ app.get("/cartelera", async (req, res) => {
  * /cartelera:
  *   post:
  *     summary: Crear una nueva película en cartelera
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               titulo:
- *                 type: string
- *               director:
- *                 type: string
- *               genero:
- *                 type: string
- *               duracion:
- *                 type: integer
- *               clasificacion:
- *                 type: string
- *               fechaEstreno:
- *                 type: string
- *                 format: date
- *               sinopsis:
- *                 type: string
- *     responses:
- *       201:
- *         description: Película creada
  */
 app.post("/cartelera", async (req, res) => {
   try {
@@ -77,40 +86,6 @@ app.post("/cartelera", async (req, res) => {
  * /cartelera/{id}:
  *   put:
  *     summary: Actualizar una película por ID
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: integer
- *         required: true
- *         description: ID de la película
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               titulo:
- *                 type: string
- *               director:
- *                 type: string
- *               genero:
- *                 type: string
- *               duracion:
- *                 type: integer
- *               clasificacion:
- *                 type: string
- *               fechaEstreno:
- *                 type: string
- *                 format: date
- *               sinopsis:
- *                 type: string
- *     responses:
- *       200:
- *         description: Película actualizada
- *       404:
- *         description: Película no encontrada
  */
 app.put("/cartelera/:id", async (req, res) => {
   try {
@@ -142,4 +117,12 @@ app.put("/cartelera/:id", async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+// ================================
+// Servidor
+// ================================
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
